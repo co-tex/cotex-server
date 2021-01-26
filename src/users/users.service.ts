@@ -1,25 +1,20 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/sequelize';
-import { User } from './user.model';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { User } from './user.entity';
 
 @Injectable()
 export class UsersService {
-  constructor() {}
-  /* 
-  async findAll(): Promise<User[]> {
-    return this.userModel.findAll();
+  constructor(@InjectRepository(User) private usersRepository: Repository<User>) {}
+  findAll(): Promise<User[]> {
+    return this.usersRepository.find();
   }
 
   findOne(id: string): Promise<User> {
-    return this.userModel.findOne({
-      where: {
-        id,
-      },
-    });
+    return this.usersRepository.findOne(id);
   }
 
   async remove(id: string): Promise<void> {
-    const user = await this.findOne(id);
-    await user.destroy();
-  } */
+    await this.usersRepository.delete(id);
+  }
 }

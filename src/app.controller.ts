@@ -5,13 +5,13 @@ import { UsersService } from './users/users.service';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService, private usersService: UsersService) {}
+  constructor(private usersService: UsersService) {}
 
   @Get()
   getHello(): string {
     let users;
-    //this.usersService.findAll().then(users => users = users);
-    return users;
+    this.usersService.findAll().then(users => users = users);
+    return `Hello`;
   }
 
   @UseGuards(LocalAuthGuard)
