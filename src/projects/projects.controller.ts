@@ -1,4 +1,4 @@
-import { Controller, Get, Header, Param, Post, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import * as fs from 'fs';
@@ -28,11 +28,11 @@ export class ProjectsController {
         });
     }
 
-    @Post(':id/sync')
+    @Post(':id/upload')
     @UseInterceptors(FileInterceptor('file', {
         storage: diskStorage({
             destination: (req, file, cb) => {
-                const dir = '/tmp/projects/' + req.params.id + '/' + req.body.path;
+                const dir = '/tmp/projects/' + req.params.id + '/' + req.body.dir;
                 
                 if(!fs.existsSync(dir)) {
                     fs.mkdirSync(dir, { recursive: true });
@@ -48,9 +48,16 @@ export class ProjectsController {
        //
     }
 
+    @Post(':id/delete')
+    delete(@Param('id') id, @Body() body: [any]) {
+        body.forEach((item) => {
+            fs.rmSync('/tmp/projects/' + id + 
+            (item.dir === '' ? '' : '/' + item.dir) 
+            + '/' + item.name, { force: true, recursive: true });
+        });
+    }
+
     @Get(':id/compile')
-    //@Header('Content-Type', 'application/pdf')
-    //@Header('Content-Disposition', 'attachment; filename=output.pdf')
     compile(@Param('id') id, @Res() res){
         const dir = '/tmp/projects/' +  id + '/';
         exec("latexmk -pdf", {cwd: dir});
