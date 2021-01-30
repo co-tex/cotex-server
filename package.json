@@ -32,7 +32,7 @@
     "bcrypt": "^5.0.0",
     "class-transformer": "^0.3.2",
     "class-validator": "^0.13.1",
-    "directory-tree": "^2.2.5",
+    "fast-glob": "^3.2.5",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",

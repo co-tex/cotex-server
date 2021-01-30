@@ -1,20 +1,31 @@
-import { Controller, Get, Param, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Header, Param, Post, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import * as dt from 'directory-tree';
 import { diskStorage } from 'multer';
 import * as fs from 'fs';
+import { exec } from 'child_process';
+import * as fg from 'fast-glob';
 
 @Controller('projects')
 export class ProjectsController {
 
     @Get(':id/index')
     getIndex(@Param('id') id) {
-        const dname = '/tmp/projects/' + id;
+        const dir = '/tmp/projects/' + id + '/';
         const res = {};
-        dt(dname, { exclude: /.cotex|.git|node_modules/, attributes: ['mtime'] }, (file, path, stats) => {
-            res[file.path.split('/').slice(3).join('/')] = file;
+        return fg(['**/**'], {
+            cwd: dir,
+            stats: true,
+            ignore: ['/.cotex|.git|node_modules/']
+        }).then((files) => {
+            const index: any = {};
+            files.forEach(file => {
+                index[file.path] = {
+                    name: file.name,
+                    mtime: file.stats?.mtime
+                } 
+            });
+            return index;
         });
-        return res;
     }
 
     @Post(':id/sync')
@@ -35,5 +46,14 @@ export class ProjectsController {
     }))
     uploadFile(@UploadedFile() file) {
        //
+    }
+
+    @Get(':id/compile')
+    //@Header('Content-Type', 'application/pdf')
+    //@Header('Content-Disposition', 'attachment; filename=output.pdf')
+    compile(@Param('id') id, @Res() res){
+        const dir = '/tmp/projects/' +  id + '/';
+        exec("latexmk -pdf", {cwd: dir});
+        res.sendFile(dir + 'reconstruction.pdf');
     }
 }
