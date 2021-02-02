@@ -1,12 +1,14 @@
-import { Body, Controller, Get, Param, Post, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Req, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import * as fs from 'fs';
 import { exec } from 'child_process';
 import * as fg from 'fast-glob';
+import { ProjectsGateway } from './projects.gateway';
 
 @Controller('projects')
 export class ProjectsController {
+    constructor(private gateway: ProjectsGateway) {}
 
     @Get(':id/index')
     getIndex(@Param('id') id) {
@@ -57,10 +59,23 @@ export class ProjectsController {
         });
     }
 
-    @Get(':id/compile')
-    compile(@Param('id') id, @Res() res){
+    @Post(':id/compile')
+    compile(@Param('id') id,@Body() body){
         const dir = '/tmp/projects/' +  id + '/';
-        exec("latexmk -pdf", {cwd: dir});
-        res.sendFile(dir + 'reconstruction.pdf');
+        
+        exec("latexmk -pdf",
+         {cwd: dir}, (error, stdout,stderr) => {
+            this.gateway.handleCompile();
+        });
+    }
+
+    @Get(':id/preview')
+    preview(@Param('id') id, @Res() res) {
+        res.sendFile('/home/sushovan/cotex-server/src/projects/preview.html');
+    }
+
+    @Get(':id/output')
+    output(@Param('id') id, @Res() res, @Req() req) {
+        res.sendFile('/tmp/projects/' +  id + '/reconstruction.pdf');
     }
 }
