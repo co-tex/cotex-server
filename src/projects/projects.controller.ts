@@ -5,10 +5,12 @@ import * as fs from 'fs';
 import { exec } from 'child_process';
 import * as fg from 'fast-glob';
 import { ProjectsGateway } from './projects.gateway';
+import { ProjectsService } from './projects.service';
 
 @Controller('projects')
 export class ProjectsController {
-    constructor(private gateway: ProjectsGateway) {}
+    constructor(private gateway: ProjectsGateway,
+        private projectsService: ProjectsService) {}
 
     @Get(':id/index')
     getIndex(@Param('id') id) {
@@ -77,5 +79,10 @@ export class ProjectsController {
     @Get(':id/output')
     output(@Param('id') id, @Res() res, @Req() req) {
         res.sendFile('/tmp/projects/' +  id + '/reconstruction.pdf');
+    }
+
+    @Get(':id/collaborators')
+    collaborators(@Param('id') id) {
+        return this.projectsService.collaborators(id);
     }
 }
