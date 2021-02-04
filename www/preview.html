@@ -30,36 +30,32 @@
     
     async function renderPage(pdf,container,pageNum) {
       const page = await pdf.getPage(pageNum);
-      let viewport = page.getViewport({ scale: 1, });
-      const desiredWidth = viewer.offsetWidth * 1.2;
-      const scale = desiredWidth / viewport.width;
-      var scaledViewport = page.getViewport({ scale: scale, });      
+      let viewport = page.getViewport({ scale: 2.5 });
       const canvas = document.createElement("canvas");    
       canvas.className = 'pdf-page';         
       container.innerHTML = '';
       container.appendChild(canvas);
       const context = canvas.getContext('2d');
-      canvas.height = scaledViewport.height;
-      canvas.width = scaledViewport.width;
+      canvas.height = viewport.height;
+      canvas.width = viewport.width;
       
-      return page.render({canvasContext: context, viewport: scaledViewport});
+      return page.render({canvasContext: context, viewport: viewport});
     }
     </script>
   <style>
     .pdf-page {
-      display: block;
       margin: auto;
+      display: block;
       margin-bottom: 10px;
-      width: 75%;
     }
 
     .pdf-container {
-      width: 100%;
+      margin-bottom: 10px;
     }
   </style>
 </head>
 <body style="margin: 0;">
-  <div id="pdf-container" style="overflow-y: scroll;max-height: 95vh; background: grey;"></div>
+  <div id="pdf-container" style="overflow-y: scroll;max-height: 100vh; background: grey;"></div>
 </body>
 <script>
   var socket = io();
@@ -67,7 +63,7 @@
   const pId = window.location.pathname.split('/')[2];
   const file = new URLSearchParams(window.location.search).get('file');
 
-  const url = 'http://localhost:5000/projects/' + pId + '/output?file=' + file;
+  const url = '/projects/' + pId + '/output?file=' + file;
   
   
   socket.on('compile', function(msg) {
