@@ -1,6 +1,7 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, JoinColumn } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { IsEmail, Length, Min, Validator } from 'class-validator';
+import { Project } from 'src/projects/project.entity';
 
 @Entity()
 export class User {
@@ -33,4 +34,7 @@ export class User {
     default: false
   })
   admin: boolean;
+
+  @ManyToMany(() => Project, project => project.collaborators)
+  projects: Project[];
 }

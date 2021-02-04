@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { User } from 'src/users/user.entity';
 import { Repository } from 'typeorm';
 import { Project } from './project.entity';
 
@@ -7,9 +8,10 @@ import { Project } from './project.entity';
 export class ProjectsService {
     constructor(@InjectRepository(Project) private projectsRepository: Repository<Project>) {}
 
-    async collaborators(id: string) {
-        const project = await this.projectsRepository.findOne(id)
-        return project.collaborators;
+    create(user: User, body: {}) {
+        const project = this.projectsRepository
+        .create({...body, collaborators: [user]});
+        return this.projectsRepository.save(project);
     }
 }
 

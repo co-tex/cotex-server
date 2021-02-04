@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Req, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import * as fs from 'fs';
@@ -6,16 +6,28 @@ import { exec } from 'child_process';
 import * as fg from 'fast-glob';
 import { ProjectsGateway } from './projects.gateway';
 import { ProjectsService } from './projects.service';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Controller('projects')
 export class ProjectsController {
     constructor(private gateway: ProjectsGateway,
         private projectsService: ProjectsService) {}
 
+    @UseGuards(JwtAuthGuard)
+    @Post()
+    createProject(@Body() body, @Req() req) {
+        return this.projectsService.create(req.user, body);
+    }
+    
     @Get(':id/index')
     getIndex(@Param('id') id) {
         const dir = '/tmp/projects/' + id + '/';
-        const res = {};
+        
+        if(!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+            return {};
+        }
+
         return fg(['**/**'], {
             cwd: dir,
             stats: true,
@@ -65,7 +77,7 @@ export class ProjectsController {
     compile(@Param('id') id,@Body() body){
         const dir = '/tmp/projects/' +  id + '/';
         
-        exec("latexmk -pdf",
+        exec("pdflatex " + body.file,
          {cwd: dir}, (error, stdout,stderr) => {
             this.gateway.handleCompile();
         });
@@ -73,16 +85,11 @@ export class ProjectsController {
 
     @Get(':id/preview')
     preview(@Param('id') id, @Res() res) {
-        res.sendFile('/home/sushovan/cotex-server/src/projects/preview.html');
+        res.sendFile('preview.html', { root: __dirname + '/../www' });
     }
 
     @Get(':id/output')
-    output(@Param('id') id, @Res() res, @Req() req) {
-        res.sendFile('/tmp/projects/' +  id + '/reconstruction.pdf');
-    }
-
-    @Get(':id/collaborators')
-    collaborators(@Param('id') id) {
-        return this.projectsService.collaborators(id);
+    output(@Param('id') id, @Res() res, @Query('file') file) {
+        res.sendFile('/tmp/projects/' +  id + '/' + file);
     }
 }

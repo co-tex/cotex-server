@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Request, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { RegisterDto } from './register.dto';
 import { UsersService } from './users.service';
@@ -12,14 +12,9 @@ export class UsersController {
         const user = this.usersService.create(registerDto);
     }
 
-    @Get('')
-    index() {
-      return this.usersService.findAll();
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Get('profile')
-  getProfile(@Request() req) {
-    return req.user;
+    @UseGuards(JwtAuthGuard)
+    @Get(':id/projects')
+    getProjects(@Param('id') id) {
+      return this.usersService.findProjects(id);
   }
 }

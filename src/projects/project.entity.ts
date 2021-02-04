@@ -9,7 +9,7 @@ export class Project {
     @Column()
     name: string;
 
-    @ManyToMany(() => User)
+    @ManyToMany(() => User, collaborator => collaborator.projects)
     @JoinTable()
     collaborators: User[];
 }

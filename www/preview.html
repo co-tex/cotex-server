@@ -64,7 +64,10 @@
 <script>
   var socket = io();
   const viewer = document.getElementById('pdf-container');
-  const url = 'http://localhost:5000/projects/1/output';
+  const pId = window.location.pathname.split('/')[2];
+  const file = new URLSearchParams(window.location.search).get('file');
+
+  const url = 'http://localhost:5000/projects/' + pId + '/output?file=' + file;
   
   
   socket.on('compile', function(msg) {
