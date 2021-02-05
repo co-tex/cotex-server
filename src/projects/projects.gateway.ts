@@ -6,7 +6,7 @@ export class ProjectsGateway {
     @WebSocketServer()
     server: Server;
 
-    handleCompile() {
-        this.server.emit("compile", {});
+    handleCompile(status: string) {
+        this.server.emit("compile", status);
     }
 }

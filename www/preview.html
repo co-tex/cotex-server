@@ -30,7 +30,10 @@
     
     async function renderPage(pdf,container,pageNum) {
       const page = await pdf.getPage(pageNum);
-      let viewport = page.getViewport({ scale: 2.5 });
+      let viewport = page.getViewport({ scale: 1 });
+
+      const scale = container.offsetWidth / viewport.width;
+      viewport = page.getViewport({ scale: scale });
       const canvas = document.createElement("canvas");    
       canvas.className = 'pdf-page';         
       container.innerHTML = '';
@@ -43,18 +46,34 @@
     }
     </script>
   <style>
+    #spinner {
+      top: 20px;
+      right: 20px;
+      position: fixed;
+      background-color: black;
+      max-width: 250px;
+      color: white; 
+      padding: 10px;
+      border-radius: 5px;
+      display: none;
+    }
     .pdf-page {
       margin: auto;
       display: block;
-      margin-bottom: 10px;
     }
 
-    .pdf-container {
+    .page-container {
+      margin: 5%;
       margin-bottom: 10px;
+      margin-top: 10px;
     }
   </style>
 </head>
 <body style="margin: 0;">
+  <div id="spinner">
+    Compiling... <img width="15" 
+    src="https://upload.wikimedia.org/wikipedia/commons/b/b9/Youtube_loading_symbol_1_(wobbly).gif">
+  </div>
   <div id="pdf-container" style="overflow-y: scroll;max-height: 100vh; background: grey;"></div>
 </body>
 <script>
@@ -66,12 +85,18 @@
   const url = '/projects/' + pId + '/output?file=' + file;
   
   
-  socket.on('compile', function(msg) {
-    const height = viewer.scrollTop;
-    
-    loadPdf(url,viewer).then(() => {
-      
-    });
+  socket.on('compile', function(status) {
+    if(status === 'start') {
+      document.getElementById('spinner').style.display = 'inherit';
+    }
+
+    else if(status === 'complete') {
+      document.getElementById('spinner').style.display = 'none';
+      //const height = viewer.scrollTop;
+      loadPdf(url,viewer).then(() => {
+        
+      });
+    }
   });
   
   loadPdf(url,viewer);

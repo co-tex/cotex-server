@@ -76,10 +76,11 @@ export class ProjectsController {
     @Post(':id/compile')
     compile(@Param('id') id,@Body() body){
         const dir = '/tmp/projects/' +  id + '/';
-        
+        this.gateway.handleCompile('start');
+
         exec("pdflatex " + body.file,
          {cwd: dir}, (error, stdout,stderr) => {
-            this.gateway.handleCompile();
+            this.gateway.handleCompile('complete');
         });
     }
 
