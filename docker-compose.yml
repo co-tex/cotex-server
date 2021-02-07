@@ -1,0 +1,33 @@
+version: "3.9"
+services:
+  app:
+    build: .
+    depends_on:
+      - postgres
+    environment:
+      DB_USERNAME: cotex
+      DB_PASSWORD: cotex
+      DB_NAME: cotex_production
+      DB_HOST: postgres
+      DB_PORT: 5432
+      PORT: 8080
+    ports:
+      - "80:8080"
+    command: npm run start
+    volumes:
+      - .:/app/
+      - /app/node_modules
+
+  postgres:
+    image: postgres:13
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: cotex
+      POSTGRES_PASSWORD: cotex
+      POSTGRES_DB: cotex_production
+    volumes:
+      - cotex-db:/var/lib/postgresql/data
+
+volumes:
+  cotex-db:
