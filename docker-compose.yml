@@ -5,11 +5,7 @@ services:
     depends_on:
       - postgres
     environment:
-      DB_USERNAME: cotex
-      DB_PASSWORD: cotex
-      DB_NAME: cotex_production
-      DB_HOST: postgres
-      DB_PORT: 5432
+      DATABASE_URL: postgres://cotex:cotex@postgres:5432/cotex_development
       PORT: 8080
     ports:
       - "80:8080"
@@ -25,7 +21,7 @@ services:
     environment:
       POSTGRES_USER: cotex
       POSTGRES_PASSWORD: cotex
-      POSTGRES_DB: cotex_production
+      POSTGRES_DB: cotex_development
     volumes:
       - cotex-db:/var/lib/postgresql/data
 

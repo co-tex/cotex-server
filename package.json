@@ -1,6 +1,6 @@
 {
   "name": "cotex-server",
-  "version": "0.0.1",
+  "version": "0.0.4",
   "description": "Remote CoTex server",
   "author": "Sushovan Majhi <sush@smajhi.com>",
   "private": false,
