@@ -6,13 +6,13 @@ services:
       - postgres
     environment:
       DATABASE_URL: postgres://cotex:cotex@postgres:5432/cotex_development
-      PORT: 8080
     ports:
-      - "80:8080"
-    command: npm run start
+      - "80:3000"
+    command: npm run start:dev
     volumes:
-      - .:/app/
-      - /app/node_modules
+      - type: bind
+        source: ./
+        target: /usr/src/app/
 
   postgres:
     image: postgres:13
